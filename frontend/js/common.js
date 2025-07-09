@@ -568,6 +568,75 @@ function saveScratchpadSize() {
   sessionStorage.setItem('scratchpad_maximized', isMaximized.toString());
 }
 
+// Clipboard paste handling for images
+function setupClipboardPaste(textareaId, onImagePaste) {
+  const textarea = document.getElementById(textareaId);
+  if (!textarea) return;
+  
+  textarea.addEventListener('paste', async (e) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    
+    for (let item of items) {
+      if (item.type.startsWith('image/')) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        if (file && onImagePaste) {
+          await onImagePaste(file);
+        }
+        break;
+      }
+    }
+  });
+}
+
+// Enhanced image paste handling
+async function handleImagePaste(file, textarea, onSuccess, onError) {
+  try {
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      if (onError) onError('Please paste an image file');
+      return;
+    }
+    
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      if (onError) onError('Image size must be less than 5MB');
+      return;
+    }
+    
+    // Show uploading indicator
+    const cursorPos = textarea.selectionStart;
+    const textBefore = textarea.value.substring(0, cursorPos);
+    const textAfter = textarea.value.substring(cursorPos);
+    const uploadingText = '\n[📷 Uploading image...]\n';
+    
+    textarea.value = textBefore + uploadingText + textAfter;
+    textarea.focus();
+    
+    // Call success callback with the file
+    if (onSuccess) {
+      await onSuccess(file, () => {
+        // Remove uploading text on completion
+        textarea.value = textarea.value.replace(uploadingText, '');
+      });
+    }
+    
+  } catch (error) {
+    console.error('Image paste error:', error);
+    if (onError) onError(error.message || 'Failed to process image');
+  }
+}
+
+// File size formatter
+function formatFileSize(bytes) {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
 // Export for use in other files
 window.API = API;
 window.Utils = Utils;
@@ -575,3 +644,6 @@ window.checkAuth = checkAuth;
 window.logout = logout;
 window.ready = ready;
 window.setupScratchpad = setupScratchpad;
+window.setupClipboardPaste = setupClipboardPaste;
+window.handleImagePaste = handleImagePaste;
+window.formatFileSize = formatFileSize;

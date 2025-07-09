@@ -116,8 +116,8 @@
                 <div class="mb-3">
                     <form id="addNoteForm" enctype="multipart/form-data">
                         <div class="form-group">
-                            <label for="noteContent" class="form-label">Add Note</label>
-                            <textarea id="noteContent" name="content" class="form-textarea" rows="3" placeholder="Add a note..." required></textarea>
+                            <label for="noteContent" class="form-label">Add Note (optional if image is attached)</label>
+                            <textarea id="noteContent" name="content" class="form-textarea" rows="3" placeholder="Add a note, attach an image, or paste a screenshot with Ctrl+V..."></textarea>
                         </div>
                         
                         <!-- Screenshot Upload Section -->
@@ -234,6 +234,9 @@
             
             // Set up file upload functionality
             setupFileUpload();
+            
+            // Set up clipboard paste functionality
+            setupClipboardPaste('noteContent', handleClipboardImagePaste);
             
             // Set up scratchpad functionality
             setupScratchpad();
@@ -357,7 +360,7 @@
                         <span class="note-author">${note.created_by_username}</span>
                         <span class="note-date">${Utils.formatDateTime(note.created_at)}</span>
                     </div>
-                    <div class="note-content">${note.content.replace(/\n/g, '<br>')}</div>
+                    ${note.content.trim() && note.content !== '[Image only]' ? `<div class="note-content">${note.content.replace(/\n/g, '<br>')}</div>` : ''}
                     ${note.attachments && note.attachments.length > 0 ? `
                         <div class="note-attachments">
                             ${note.attachments.map(attachment => `
@@ -475,11 +478,14 @@
         async function addNote(ticketId) {
             try {
                 const form = document.getElementById('addNoteForm');
-                const formData = new FormData(form);
-                const content = formData.get('content').trim();
+                const content = document.getElementById('noteContent').value.trim();
 
-                if (!content) {
-                    Utils.showAlert('Note content is required', 'error');
+                // Validate that either content or file is provided
+                const hasContent = content.length > 0;
+                const hasFile = selectedFile !== null;
+                
+                if (!hasContent && !hasFile) {
+                    Utils.showAlert('Note must contain either text content or an image', 'error');
                     return;
                 }
 
@@ -495,7 +501,7 @@
                 if (selectedFile) {
                     uploadData.append('screenshot', selectedFile);
                 }
-
+                
                 const response = await fetch(`/api/tickets/${ticketId}/notes`, {
                     method: 'POST',
                     body: uploadData
@@ -560,6 +566,18 @@
             }
         }
 
+        // Clipboard paste handler for notes textarea
+        async function handleClipboardImagePaste(file) {
+            // Set the file as selected
+            selectedFile = file;
+            
+            // Show image preview
+            showImagePreview(file);
+            
+            // Show confirmation message
+            Utils.showQuickAlert('Image pasted! You can now submit the note.');
+        }
+        
         // File upload functionality
         function setupFileUpload() {
             const fileInput = document.getElementById('screenshot');
@@ -578,9 +596,6 @@
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
                 dragZone.addEventListener(eventName, preventDefaults);
             });
-            
-            // Clipboard paste handler
-            document.addEventListener('paste', handlePaste);
         }
         
         function preventDefaults(e) {
@@ -615,16 +630,7 @@
             }
         }
         
-        function handlePaste(e) {
-            const items = e.clipboardData.items;
-            for (let i = 0; i < items.length; i++) {
-                if (items[i].type.startsWith('image/')) {
-                    const file = items[i].getAsFile();
-                    handleFile(file);
-                    break;
-                }
-            }
-        }
+
         
         function handleFile(file) {
             // Validate file type
@@ -671,13 +677,7 @@
             selectedFile = null;
         }
         
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
+
         
         function openImageModal(src) {
             const modal = document.getElementById('imageModal');

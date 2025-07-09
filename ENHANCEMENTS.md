@@ -117,11 +117,52 @@ JobTickets Lite is a lightweight, responsive ticket management system built with
 
 ---
 
-### 7. Global Scratchpad System ✅
+### 7. Screenshot Paste Functionality ✅
+**Implementation Date**: July 2025  
+**Description**: Clipboard paste support for screenshots in notes
+
+#### 7.1 Core Features
+**Files Modified**:
+- `backend/middleware/auth.js` - Updated validation for image-only notes
+- `backend/routes/notes.js` - Enhanced note creation with file support
+- `frontend/js/common.js` - Added clipboard paste utilities
+- `frontend/ticket-detail.html` - Integrated paste functionality
+
+**Features**:
+- 📷 Ctrl+V paste support for screenshots
+- Image validation (type and size checks)
+- Visual feedback during upload
+- Support for image-only notes (no text required)
+- Drag-and-drop file upload
+- Image preview before submission
+
+#### 7.2 User Experience
+**Workflow**:
+1. User takes screenshot or copies image
+2. Focuses on notes textarea
+3. Presses Ctrl+V to paste
+4. Image preview appears automatically
+5. User can submit note with or without text
+
+**File Support**:
+- **Formats**: JPG, PNG, GIF, WebP
+- **Size Limit**: 5MB per image
+- **Storage**: `/uploads/screenshots/` directory
+- **Validation**: Client and server-side checks
+
+#### 7.3 Technical Implementation
+**Clipboard API**: Modern browser paste event handling
+**File Processing**: Multer middleware for upload handling
+**Database**: Attachments table linked to notes
+**Validation**: Allow notes with images but no text content
+
+---
+
+### 8. Global Scratchpad System ✅
 **Implementation Date**: July 2025
 **Description**: Comprehensive scratchpad functionality available on all pages
 
-#### 7.1 Core Features
+#### 8.1 Core Features
 **Files Modified**:
 - `frontend/js/common.js` - Scratchpad functionality
 - `frontend/css/styles.css` - Modal and formatting styles
@@ -134,7 +175,7 @@ JobTickets Lite is a lightweight, responsive ticket management system built with
 - Manual save and clear options
 - Session storage persistence
 
-#### 7.2 Formatting Toolbar
+#### 8.2 Formatting Toolbar
 **Implementation**: Rich text formatting options
 **Features**:
 - **Bold** (`**text**`) - Button or Ctrl+B
@@ -144,7 +185,7 @@ JobTickets Lite is a lightweight, responsive ticket management system built with
 - **Heading 1** (`# text`) - Large headings
 - **Heading 2** (`## text`) - Medium headings
 
-#### 7.3 Resizable Modal
+#### 8.3 Resizable Modal
 **Feature**: Drag-to-resize scratchpad window
 **Implementation**:
 - Resize handle in bottom-right corner
@@ -152,7 +193,7 @@ JobTickets Lite is a lightweight, responsive ticket management system built with
 - Size persistence across sessions
 - Smooth resizing with proper constraints
 
-#### 7.4 Global Availability
+#### 8.4 Global Availability
 **Pages with Scratchpad**:
 - ✅ Dashboard (`/index.html`)
 - ✅ All Tickets (`/tickets.html`)
@@ -163,11 +204,12 @@ JobTickets Lite is a lightweight, responsive ticket management system built with
 - ❌ Login (`/login.html`) - Pre-authentication
 - ❌ Register (`/register.html`) - Pre-authentication
 
-#### 7.5 Keyboard Shortcuts
+#### 8.5 Keyboard Shortcuts
 - **Ctrl+B** - Bold formatting
 - **Ctrl+I** - Italic formatting
 - **Escape** - Close scratchpad
 - **Ctrl+Enter** - (For notes only, not scratchpad)
+- **Ctrl+V** - Paste images into notes (NEW)
 
 ---
 

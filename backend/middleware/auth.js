@@ -32,12 +32,16 @@ function validateTicket(req, res, next) {
 
 function validateNote(req, res, next) {
   const { content } = req.body;
+  const hasFile = req.file && req.file.filename;
   
-  if (!content || content.trim().length === 0) {
-    return res.status(400).json({ error: 'Note content is required' });
+  // Allow note if it has either content or a file attachment
+  const hasContent = content && content.trim().length > 0;
+  
+  if (!hasContent && !hasFile) {
+    return res.status(400).json({ error: 'Note must contain either text content or an image' });
   }
 
-  if (content.length > 1000) {
+  if (hasContent && content.length > 1000) {
     return res.status(400).json({ error: 'Note content must be less than 1000 characters' });
   }
 

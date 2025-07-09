@@ -5,12 +5,18 @@ const fs = require('fs');
 const database = require('../models/database');
 const { requireAuth, validateNote } = require('../middleware/auth');
 
+// Ensure upload directory exists
+const uploadDir = path.join(__dirname, '..', '..', 'uploads', 'screenshots');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+  console.log('Created upload directory:', uploadDir);
+}
+
 const router = express.Router();
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const uploadDir = path.join(__dirname, '..', '..', 'uploads', 'screenshots');
     cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
@@ -80,13 +86,21 @@ router.post('/tickets/:ticketId/notes', requireAuth, upload.single('screenshot')
   const { content } = req.body;
   const file = req.file;
 
-  if (!content || content.trim().length === 0) {
-    return res.status(400).json({ error: 'Note content is required' });
+  // Validate that either content or file is provided
+  const hasContent = content && content.trim().length > 0;
+  const hasFile = file && file.filename;
+  
+  if (!hasContent && !hasFile) {
+    return res.status(400).json({ error: 'Note must contain either text content or an image' });
+  }
+
+  if (hasContent && content.length > 1000) {
+    return res.status(400).json({ error: 'Note content must be less than 1000 characters' });
   }
 
   const noteData = {
     ticket_id: ticketId,
-    content: content.trim(),
+    content: hasContent ? content.trim() : '[Image only]', // Use placeholder when only image
     created_by: req.session.user.id
   };
 
@@ -159,9 +173,18 @@ router.post('/tickets/:ticketId/notes', requireAuth, upload.single('screenshot')
 });
 
 // Update note
-router.put('/notes/:id', requireAuth, validateNote, (req, res) => {
+router.put('/notes/:id', requireAuth, (req, res) => {
+  const { content } = req.body;
+  
+  if (!content || content.trim().length === 0) {
+    return res.status(400).json({ error: 'Note content is required' });
+  }
+
+  if (content.length > 1000) {
+    return res.status(400).json({ error: 'Note content must be less than 1000 characters' });
+  }
+  
   const noteId = req.params.id;
-  const content = req.body.content;
 
   database.updateNote(noteId, content, (err) => {
     if (err) {

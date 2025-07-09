@@ -6,6 +6,7 @@ A lightweight, responsive ticket management system built with Node.js, Express, 
 
 - 🎫 **Ticket Management** - Create, read, update, and delete tickets
 - 📝 **Notes System** - Add notes to tickets for collaboration
+- 📷 **Image Attachments** - Upload screenshots and images to notes with Ctrl+V paste support
 - 👥 **User Management** - User registration and authentication
 - 🔍 **Advanced Search** - Filter tickets by status, priority, assignee, and search content
 - 📊 **Dashboard** - Overview of ticket statistics and recent activity
@@ -32,17 +33,22 @@ cd JobTicketsLite
 npm run setup
 ```
 
-3. Start the development server:
+3. Add attachments table for image uploads (if upgrading from earlier version):
+```bash
+npm run add-attachments
+```
+
+4. Start the development server:
 ```bash
 npm run dev
 ```
 
-4. Open your browser and navigate to:
+5. Open your browser and navigate to:
 ```
 http://localhost:3000
 ```
 
-5. Login with default credentials:
+6. Login with default credentials:
    - Username: `admin`
    - Password: `admin123`
 
@@ -136,6 +142,10 @@ The application uses SQLite for data storage. The database file (`tickets.db`) i
 - Use filters to find specific tickets
 - Click on a ticket title to view details
 - Add notes to tickets for collaboration
+- Upload images and screenshots to notes
+- **Paste screenshots directly using Ctrl+V** - Works in the notes textarea
+- Drag and drop image files onto the upload area
+- Create image-only notes without text content
 - Update ticket status and other fields
 
 ### User Management
@@ -151,6 +161,7 @@ The application uses SQLite for data storage. The database file (`tickets.db`) i
 - `npm run dev` - Start development server with auto-restart
 - `npm run setup` - Install dependencies and initialize database
 - `npm run init-db` - Initialize/reset database only
+- `npm run add-attachments` - Add attachments table for image uploads
 
 ### Database Schema
 
@@ -179,6 +190,17 @@ The application uses SQLite for data storage. The database file (`tickets.db`) i
 - `content` - Note content
 - `created_at` - Creation timestamp
 - `created_by` - Creator user ID (foreign key)
+
+#### Attachments Table
+- `id` - Primary key
+- `note_id` - Associated note ID (foreign key)
+- `filename` - Stored filename
+- `original_name` - Original filename
+- `file_path` - File system path
+- `file_size` - File size in bytes
+- `mime_type` - MIME type
+- `created_at` - Upload timestamp
+- `created_by` - Uploader user ID (foreign key)
 
 ## Security Features
 

@@ -8,7 +8,8 @@
     "dev": "nodemon backend/server.js",
     "init-db": "node backend/models/database.js",
     "setup": "npm install && node backend/models/database.js",
-    "test": "node test-api.js"
+    "test": "node test-api.js",
+    "add-attachments": "node add-attachments-table.js"
   },
   "keywords": [
     "tickets",
