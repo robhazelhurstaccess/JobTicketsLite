@@ -7,6 +7,7 @@ A lightweight, responsive ticket management system built with Node.js, Express, 
 - 🎫 **Ticket Management** - Create, read, update, and delete tickets
 - 📝 **Notes System** - Add notes to tickets for collaboration
 - 📷 **Image Attachments** - Upload screenshots and images to notes with Ctrl+V paste support
+- ⌨️ **Keyboard Shortcuts** - Ctrl+Enter for all forms and confirm actions
 - 👥 **User Management** - User registration and authentication
 - 🔍 **Advanced Search** - Filter tickets by status, priority, assignee, and search content
 - 📊 **Dashboard** - Overview of ticket statistics and recent activity
@@ -147,6 +148,13 @@ The application uses SQLite for data storage. The database file (`tickets.db`) i
 - Drag and drop image files onto the upload area
 - Create image-only notes without text content
 - Update ticket status and other fields
+
+### Keyboard Shortcuts
+- **Ctrl+Enter** (or **Cmd+Enter** on Mac) - Submit any form or confirm action
+- **Ctrl+V** - Paste screenshots directly into notes
+- **Ctrl+B** - Bold text in scratchpad
+- **Ctrl+I** - Italic text in scratchpad
+- **Escape** - Close modals and dialogs
 
 ### User Management
 - Register new users via the registration page

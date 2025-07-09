@@ -42,11 +42,11 @@ const upload = multer({
   }
 });
 
-// Get all notes for a ticket
-router.get('/tickets/:ticketId/notes', requireAuth, (req, res) => {
-  const ticketId = req.params.ticketId;
+// Get all notes for a task
+router.get('/tasks/:taskId/notes', requireAuth, (req, res) => {
+  const taskId = req.params.taskId;
 
-  database.getNotesByTicketId(ticketId, (err, notes) => {
+  database.getNotesByTicketId(taskId, (err, notes) => {
     if (err) {
       return res.status(500).json({ error: 'Database error' });
     }
@@ -80,9 +80,9 @@ router.get('/tickets/:ticketId/notes', requireAuth, (req, res) => {
   });
 });
 
-// Add note to ticket
-router.post('/tickets/:ticketId/notes', requireAuth, upload.single('screenshot'), (req, res) => {
-  const ticketId = req.params.ticketId;
+// Add note to task
+router.post('/tasks/:taskId/notes', requireAuth, upload.single('screenshot'), (req, res) => {
+  const taskId = req.params.taskId;
   const { content } = req.body;
   const file = req.file;
 
@@ -99,7 +99,7 @@ router.post('/tickets/:ticketId/notes', requireAuth, upload.single('screenshot')
   }
 
   const noteData = {
-    ticket_id: ticketId,
+    ticket_id: taskId,
     content: hasContent ? content.trim() : '[Image only]', // Use placeholder when only image
     created_by: req.session.user.id
   };

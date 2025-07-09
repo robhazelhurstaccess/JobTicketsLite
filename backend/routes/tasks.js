@@ -1,10 +1,10 @@
 const express = require('express');
 const database = require('../models/database');
-const { requireAuth, validateTicket } = require('../middleware/auth');
+const { requireAuth, validateTask } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Get all tickets
+// Get all tasks
 router.get('/', requireAuth, (req, res) => {
   const filters = {
     status: req.query.status,
@@ -13,34 +13,34 @@ router.get('/', requireAuth, (req, res) => {
     search: req.query.search
   };
 
-  database.getTickets(filters, (err, tickets) => {
+  database.getTasks(filters, (err, tasks) => {
     if (err) {
       return res.status(500).json({ error: 'Database error' });
     }
-    res.json(tickets);
+    res.json(tasks);
   });
 });
 
-// Get specific ticket
+// Get specific task
 router.get('/:id', requireAuth, (req, res) => {
-  const ticketId = req.params.id;
+  const taskId = req.params.id;
 
-  database.getTicketById(ticketId, (err, ticket) => {
+  database.getTaskById(taskId, (err, task) => {
     if (err) {
       return res.status(500).json({ error: 'Database error' });
     }
     
-    if (!ticket) {
-      return res.status(404).json({ error: 'Ticket not found' });
+    if (!task) {
+      return res.status(404).json({ error: 'Task not found' });
     }
 
-    res.json(ticket);
+    res.json(task);
   });
 });
 
-// Create new ticket
-router.post('/', requireAuth, validateTicket, (req, res) => {
-  const ticketData = {
+// Create new task
+router.post('/', requireAuth, validateTask, (req, res) => {
+  const taskData = {
     title: req.body.title,
     description: req.body.description || '',
     priority: req.body.priority || 'medium',
@@ -50,23 +50,23 @@ router.post('/', requireAuth, validateTicket, (req, res) => {
     created_by: req.session.user.id
   };
 
-  database.createTicket(ticketData, function(err) {
+  database.createTask(taskData, function(err) {
     if (err) {
       return res.status(500).json({ error: 'Database error' });
     }
 
-    database.getTicketById(this.lastID, (err, ticket) => {
+    database.getTaskById(this.lastID, (err, task) => {
       if (err) {
         return res.status(500).json({ error: 'Database error' });
       }
-      res.status(201).json(ticket);
+      res.status(201).json(task);
     });
   });
 });
 
-// Update ticket
+// Update task
 router.put('/:id', requireAuth, (req, res) => {
-  const ticketId = req.params.id;
+  const taskId = req.params.id;
   const updates = {};
 
   // Only include fields that are provided
@@ -77,34 +77,34 @@ router.put('/:id', requireAuth, (req, res) => {
   if (req.body.due_date !== undefined) updates.due_date = req.body.due_date;
   if (req.body.assigned_to !== undefined) updates.assigned_to = req.body.assigned_to;
 
-  database.updateTicket(ticketId, updates, (err) => {
+  database.updateTask(taskId, updates, (err) => {
     if (err) {
       return res.status(500).json({ error: 'Database error' });
     }
 
-    database.getTicketById(ticketId, (err, ticket) => {
+    database.getTaskById(taskId, (err, task) => {
       if (err) {
         return res.status(500).json({ error: 'Database error' });
       }
       
-      if (!ticket) {
-        return res.status(404).json({ error: 'Ticket not found' });
+      if (!task) {
+        return res.status(404).json({ error: 'Task not found' });
       }
 
-      res.json(ticket);
+      res.json(task);
     });
   });
 });
 
-// Delete ticket
+// Delete task
 router.delete('/:id', requireAuth, (req, res) => {
-  const ticketId = req.params.id;
+  const taskId = req.params.id;
 
-  database.deleteTicket(ticketId, (err) => {
+  database.deleteTask(taskId, (err) => {
     if (err) {
       return res.status(500).json({ error: 'Database error' });
     }
-    res.json({ message: 'Ticket deleted successfully' });
+    res.json({ message: 'Task deleted successfully' });
   });
 });
 

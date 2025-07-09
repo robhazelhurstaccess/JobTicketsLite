@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - JobTickets Lite</title>
+    <title>Register - AccessTasks</title>
     <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
     <div class="login-container">
         <div class="login-card">
-            <h1 class="login-title">Register for JobTickets Lite</h1>
+            <h1 class="login-title">Register for AccessTasks</h1>
             <div id="alerts"></div>
             <form id="registerForm">
                 <div class="form-group">
@@ -40,6 +40,10 @@
     <script>
         ready(() => {
             const form = document.getElementById('registerForm');
+            
+            // Set up keyboard shortcuts
+            setupKeyboardShortcuts();
+            
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 

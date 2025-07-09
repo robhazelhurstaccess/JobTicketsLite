@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - JobTickets Lite</title>
+    <title>Login - AccessTasks</title>
     <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
     <div class="login-container">
         <div class="login-card">
-            <h1 class="login-title">JobTickets Lite</h1>
+            <h1 class="login-title">AccessTasks</h1>
             
             <div id="alerts"></div>
             
@@ -45,6 +45,9 @@
             const form = document.getElementById('loginForm');
             const usernameInput = document.getElementById('username');
             const passwordInput = document.getElementById('password');
+
+            // Set up keyboard shortcuts
+            setupKeyboardShortcuts();
 
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();

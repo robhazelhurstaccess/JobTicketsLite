@@ -158,11 +158,78 @@ JobTickets Lite is a lightweight, responsive ticket management system built with
 
 ---
 
-### 8. Global Scratchpad System ✅
+### 8. Keyboard Shortcuts Enhancement ✅
+**Implementation Date**: July 2025  
+**Description**: Global Ctrl+Enter shortcuts for all confirm/submit actions
+
+#### 8.1 Core Features
+**Files Modified**:
+- `frontend/js/common.js` - Added global keyboard shortcut system
+- All main HTML pages - Integrated keyboard shortcuts
+
+**Features**:
+- ⌨️ **Ctrl+Enter** (or **Cmd+Enter** on Mac) for form submission
+- 🎯 **Smart Context Detection** - Finds the appropriate form/button
+- 👁️ **Visual Feedback** - Button press animation and notification
+- 🔍 **Priority System** - Handles overlapping forms intelligently
+- 📱 **Cross-platform** - Works on Windows, Mac, and Linux
+
+#### 8.2 Supported Actions
+**Forms with Ctrl+Enter**:
+- ✅ **Login Form** - Quick login
+- ✅ **Registration Form** - Quick registration
+- ✅ **Create Ticket Form** - Quick ticket creation
+- ✅ **Edit Ticket Form** - Quick ticket updates
+- ✅ **Add Note Form** - Quick note submission
+- ✅ **Filter Forms** - Quick filter application
+- ✅ **Scratchpad Save** - Quick scratchpad save
+
+**Smart Detection Priority**:
+1. **Active Form** - Form containing the focused element
+2. **Visible Modal** - Forms in open modal dialogs
+3. **Main Page Forms** - Primary forms on the page
+4. **Action Buttons** - Specific confirm/submit buttons
+
+#### 8.3 Technical Implementation
+**Global Event Listener**:
+- Captures `Ctrl+Enter` and `Cmd+Enter` key combinations
+- Prevents default browser behavior
+- Finds the most relevant form or button
+- Triggers appropriate action with visual feedback
+
+**Context-Aware Detection**:
+- Checks focused element's parent form first
+- Handles modal overlays and hidden forms
+- Supports both form submission and button clicks
+- Ignores disabled buttons and hidden forms
+
+**Visual Feedback**:
+- Button press animation (scale down effect)
+- Notification popup showing "Ctrl+Enter triggered!"
+- Smooth transitions and professional styling
+
+#### 8.4 User Experience
+**Workflow Benefits**:
+- ⚡ **Faster Form Submission** - No mouse needed
+- 🎯 **Context-Aware** - Works where you expect it
+- 💡 **Discoverable** - Visual feedback teaches users
+- 🔄 **Consistent** - Same shortcut across all pages
+
+**Pages with Keyboard Shortcuts**:
+- ✅ **Dashboard** (`/index.html`)
+- ✅ **All Tickets** (`/tickets.html`)
+- ✅ **Create Ticket** (`/create-ticket.html`)
+- ✅ **Ticket Detail** (`/ticket-detail.html`)
+- ✅ **Login** (`/login.html`)
+- ✅ **Register** (`/register.html`)
+
+---
+
+### 9. Global Scratchpad System ✅
 **Implementation Date**: July 2025
 **Description**: Comprehensive scratchpad functionality available on all pages
 
-#### 8.1 Core Features
+#### 9.1 Core Features
 **Files Modified**:
 - `frontend/js/common.js` - Scratchpad functionality
 - `frontend/css/styles.css` - Modal and formatting styles
@@ -175,7 +242,7 @@ JobTickets Lite is a lightweight, responsive ticket management system built with
 - Manual save and clear options
 - Session storage persistence
 
-#### 8.2 Formatting Toolbar
+#### 9.2 Formatting Toolbar
 **Implementation**: Rich text formatting options
 **Features**:
 - **Bold** (`**text**`) - Button or Ctrl+B
@@ -185,7 +252,7 @@ JobTickets Lite is a lightweight, responsive ticket management system built with
 - **Heading 1** (`# text`) - Large headings
 - **Heading 2** (`## text`) - Medium headings
 
-#### 8.3 Resizable Modal
+#### 9.3 Resizable Modal
 **Feature**: Drag-to-resize scratchpad window
 **Implementation**:
 - Resize handle in bottom-right corner
@@ -193,7 +260,7 @@ JobTickets Lite is a lightweight, responsive ticket management system built with
 - Size persistence across sessions
 - Smooth resizing with proper constraints
 
-#### 8.4 Global Availability
+#### 9.4 Global Availability
 **Pages with Scratchpad**:
 - ✅ Dashboard (`/index.html`)
 - ✅ All Tickets (`/tickets.html`)
@@ -204,12 +271,12 @@ JobTickets Lite is a lightweight, responsive ticket management system built with
 - ❌ Login (`/login.html`) - Pre-authentication
 - ❌ Register (`/register.html`) - Pre-authentication
 
-#### 8.5 Keyboard Shortcuts
+#### 9.5 Keyboard Shortcuts
 - **Ctrl+B** - Bold formatting
 - **Ctrl+I** - Italic formatting
 - **Escape** - Close scratchpad
-- **Ctrl+Enter** - (For notes only, not scratchpad)
-- **Ctrl+V** - Paste images into notes (NEW)
+- **Ctrl+Enter** - Save scratchpad (NEW)
+- **Ctrl+V** - Paste images into notes
 
 ---
 

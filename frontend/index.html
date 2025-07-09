@@ -3,19 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - JobTickets Lite</title>
+    <title>Dashboard - AccessTasks</title>
     <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
     <header class="header">
         <div class="container">
             <div class="header-content">
-                <a href="/" class="logo">JobTickets Lite</a>
+                <a href="/" class="logo">AccessTasks</a>
                 <nav class="nav">
                     <a href="/">Dashboard</a>
-                    <a href="/tickets.html">All Tickets</a>
-                    <a href="/create-ticket.html">Create Ticket</a>
-                    <button id="scratchpadBtn" class="btn btn-secondary btn-small" style="margin-left: 1rem;">📝 Scratchpad</button>
+                    <a href="/tasks.html">All Tasks</a>
+                    <a href="/create-task.html">Create Task</a>
+                    <button id="calendarBtn" class="btn btn-secondary btn-small" style="margin-left: 1rem;">📅 Calendar</button>
+                    <button id="scratchpadBtn" class="btn btn-secondary btn-small scratchpad-dropdown-btn" style="margin-left: 0.5rem; position: relative;">
+                        📝 Scratchpad <span class="dropdown-arrow">▼</span>
+                    </button>
+                    <div id="scratchpadDropdown" class="scratchpad-dropdown hidden">
+                        <div class="scratchpad-dropdown-header">
+                            <input type="text" id="newScratchpadName" placeholder="New scratchpad name..." class="form-input" style="font-size: 0.875rem; padding: 0.25rem 0.5rem; margin-bottom: 0.5rem;">
+                            <button id="createScratchpadBtn" class="btn btn-small btn-primary" style="font-size: 0.875rem; padding: 0.25rem 0.5rem;">Create New</button>
+                        </div>
+                        <div class="scratchpad-dropdown-divider"></div>
+                        <div id="scratchpadList" class="scratchpad-list">
+                            <!-- Scratchpad items will be populated here -->
+                        </div>
+                    </div>
                 </nav>
                 <div class="user-info">
                     <span class="user-name" id="userName">Loading...</span>
@@ -30,49 +43,49 @@
             <div id="alerts"></div>
             
             <h1 class="page-title">Dashboard</h1>
-            <p class="page-subtitle">Overview of your tickets and recent activity</p>
+            <p class="page-subtitle">Overview of your tasks and recent activity</p>
 
             <div class="stats-grid" id="statsGrid">
-                <div class="stat-card">
-                    <div class="stat-value" id="totalTickets">-</div>
-                    <div class="stat-label">Total Tickets</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="openTickets">-</div>
-                    <div class="stat-label">Open Tickets</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="inProgressTickets">-</div>
-                    <div class="stat-label">In Progress</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="resolvedTickets">-</div>
-                    <div class="stat-label">Resolved</div>
-                </div>
+            <div class="stat-card">
+            <div class="stat-value" id="totalTickets">-</div>
+            <div class="stat-label">Total Tasks</div>
+            </div>
+            <div class="stat-card">
+            <div class="stat-value" id="openTickets">-</div>
+            <div class="stat-label">Open Tasks</div>
+            </div>
+            <div class="stat-card">
+            <div class="stat-value" id="inProgressTickets">-</div>
+            <div class="stat-label">In Progress</div>
+            </div>
+            <div class="stat-card">
+            <div class="stat-value" id="resolvedTickets">-</div>
+            <div class="stat-label">Resolved</div>
+            </div>
             </div>
 
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">Recent Tickets</h2>
-                    <a href="/create-ticket.html" class="btn btn-primary">Create New Ticket</a>
+                    <h2 class="card-title">Recent Tasks</h2>
+                    <a href="/create-task.html" class="btn btn-primary">Create New Task</a>
                 </div>
                 <div class="table-container">
-                    <table class="table" id="recentTicketsTable">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Title</th>
-                                <th>Priority</th>
-                                <th>Status</th>
-                                <th>Created</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="recentTicketsBody">
-                            <tr>
-                                <td colspan="6" class="text-center">Loading...</td>
-                            </tr>
-                        </tbody>
+                    <table class="table" id="recentTasksTable">
+                    <thead>
+                    <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody id="recentTasksBody">
+                    <tr>
+                    <td colspan="6" class="text-center">Loading...</td>
+                    </tr>
+                    </tbody>
                     </table>
                 </div>
             </div>
@@ -82,18 +95,62 @@
                     <h2 class="card-title">Quick Actions</h2>
                 </div>
                 <div class="flex gap-2">
-                    <a href="/create-ticket.html" class="btn btn-primary">Create New Ticket</a>
-                    <a href="/tickets.html" class="btn btn-secondary">View All Tickets</a>
+                    <a href="/create-task.html" class="btn btn-primary">Create New Task</a>
+                    <a href="/tasks.html" class="btn btn-secondary">View All Tasks</a>
                 </div>
             </div>
         </div>
     </main>
 
+    <!-- Calendar Modal -->
+    <div id="calendarModal" class="modal-overlay hidden">
+        <div class="modal-content calendar-modal" id="calendarModalContent">
+            <div class="modal-header">
+                <h2>Calendar View</h2>
+                <div class="calendar-controls">
+                    <button id="prevMonth" class="btn btn-small btn-secondary">←</button>
+                    <span id="currentMonth" class="calendar-month-year"></span>
+                    <button id="nextMonth" class="btn btn-small btn-secondary">→</button>
+                </div>
+                <button id="closeCalendarBtn" class="btn btn-small btn-secondary">✕ Close</button>
+            </div>
+            <div class="modal-body">
+                <div class="calendar-grid">
+                    <div class="calendar-header">
+                        <div class="calendar-day-header">Sun</div>
+                        <div class="calendar-day-header">Mon</div>
+                        <div class="calendar-day-header">Tue</div>
+                        <div class="calendar-day-header">Wed</div>
+                        <div class="calendar-day-header">Thu</div>
+                        <div class="calendar-day-header">Fri</div>
+                        <div class="calendar-day-header">Sat</div>
+                    </div>
+                    <div class="calendar-days" id="calendarDays">
+                        <!-- Calendar days will be populated here -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="calendar-legend">
+                    <span class="legend-item"><span class="legend-color high"></span> High Priority</span>
+                    <span class="legend-item"><span class="legend-color medium"></span> Medium Priority</span>
+                    <span class="legend-item"><span class="legend-color low"></span> Low Priority</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scratchpad Modal -->
     <div id="scratchpadModal" class="modal-overlay hidden">
         <div class="modal-content resizable-modal" id="scratchpadModalContent">
             <div class="modal-header">
-                <h2>Scratchpad</h2>
+                <div class="scratchpad-header-left">
+                    <h2 id="scratchpadTitle">Scratchpad</h2>
+                    <div class="scratchpad-actions">
+                        <button id="renameScratchpadBtn" class="btn btn-small btn-secondary" title="Rename Scratchpad">📝</button>
+                        <button id="deleteScratchpadBtn" class="btn btn-small btn-danger" title="Delete Scratchpad">🗑️</button>
+                    </div>
+                </div>
                 <div class="flex gap-1">
                     <button id="maximizeScratchpadBtn" class="btn btn-small btn-secondary" title="Maximize/Restore">⛶</button>
                     <button id="closeScratchpadBtn" class="btn btn-small btn-secondary">✕ Close</button>
@@ -152,20 +209,26 @@
             // Load dashboard data
             await loadDashboardData();
             
+            // Set up keyboard shortcuts
+            setupKeyboardShortcuts();
+            
+            // Set up calendar
+            setupCalendar();
+            
             // Set up scratchpad
             setupScratchpad();
         });
 
         async function loadDashboardData() {
             try {
-                const tickets = await API.getTickets();
+                const tasks = await API.getTasks();
                 
                 // Update statistics
-                updateStatistics(tickets);
+                updateStatistics(tasks);
                 
-                // Show recent tickets (last 10)
-                const recentTickets = tickets.slice(0, 10);
-                displayRecentTickets(recentTickets);
+                // Show recent tasks (last 10)
+                const recentTasks = tasks.slice(0, 10);
+                displayRecentTasks(recentTasks);
                 
             } catch (error) {
                 console.error('Error loading dashboard data:', error);
@@ -173,12 +236,12 @@
             }
         }
 
-        function updateStatistics(tickets) {
+        function updateStatistics(tasks) {
             const stats = {
-                total: tickets.length,
-                open: tickets.filter(t => t.status === 'open').length,
-                inProgress: tickets.filter(t => t.status === 'in_progress').length,
-                resolved: tickets.filter(t => t.status === 'resolved').length
+                total: tasks.length,
+                open: tasks.filter(t => t.status === 'open').length,
+                inProgress: tasks.filter(t => t.status === 'in_progress').length,
+                resolved: tasks.filter(t => t.status === 'resolved').length
             };
 
             document.getElementById('totalTickets').textContent = stats.total;
@@ -187,36 +250,36 @@
             document.getElementById('resolvedTickets').textContent = stats.resolved;
         }
 
-        function displayRecentTickets(tickets) {
-            const tbody = document.getElementById('recentTicketsBody');
+        function displayRecentTasks(tasks) {
+            const tbody = document.getElementById('recentTasksBody');
             
-            if (tickets.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center">No tickets found</td></tr>';
+            if (tasks.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center">No tasks found</td></tr>';
                 return;
             }
 
-            tbody.innerHTML = tickets.map(ticket => `
+            tbody.innerHTML = tasks.map(task => `
                 <tr>
-                    <td>#${ticket.id}</td>
+                    <td>#${task.id}</td>
                     <td>
-                        <a href="/ticket-detail.html?id=${ticket.id}" style="text-decoration: none; color: #3498db;">
-                            ${ticket.title}
+                        <a href="/task-detail.html?id=${task.id}" style="text-decoration: none; color: #3498db;">
+                            ${task.title}
                         </a>
                     </td>
                     <td>
-                        <span class="priority-badge priority-${ticket.priority}">
-                            ${Utils.capitalize(ticket.priority)}
+                        <span class="priority-badge priority-${task.priority}">
+                            ${Utils.capitalize(task.priority)}
                         </span>
                     </td>
                     <td>
-                        <span class="status-badge status-${ticket.status}">
-                            ${Utils.capitalize(ticket.status.replace('_', ' '))}
+                        <span class="status-badge status-${task.status}">
+                            ${Utils.capitalize(task.status.replace('_', ' '))}
                         </span>
                     </td>
-                    <td>${Utils.formatDate(ticket.created_at)}</td>
+                    <td>${Utils.formatDate(task.created_at)}</td>
                     <td>
                         <div class="table-actions">
-                            <a href="/ticket-detail.html?id=${ticket.id}" class="btn btn-small btn-primary">View</a>
+                            <a href="/task-detail.html?id=${task.id}" class="btn btn-small btn-primary">View</a>
                         </div>
                     </td>
                 </tr>

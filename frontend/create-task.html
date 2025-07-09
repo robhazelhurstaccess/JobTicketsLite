@@ -3,19 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Ticket - JobTickets Lite</title>
+    <title>Create Task - AccessTasks</title>
     <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
     <header class="header">
         <div class="container">
             <div class="header-content">
-                <a href="/" class="logo">JobTickets Lite</a>
+                <a href="/" class="logo">AccessTasks</a>
                 <nav class="nav">
                     <a href="/">Dashboard</a>
-                    <a href="/tickets.html">All Tickets</a>
-                    <a href="/create-ticket.html">Create Ticket</a>
-                    <button id="scratchpadBtn" class="btn btn-secondary btn-small" style="margin-left: 1rem;">📝 Scratchpad</button>
+                    <a href="/tasks.html">All Tasks</a>
+                    <a href="/create-task.html">Create Task</a>
+                    <button id="calendarBtn" class="btn btn-secondary btn-small" style="margin-left: 1rem;">📅 Calendar</button>
+                    <button id="scratchpadBtn" class="btn btn-secondary btn-small scratchpad-dropdown-btn" style="margin-left: 0.5rem; position: relative;">
+                        📝 Scratchpad <span class="dropdown-arrow">▼</span>
+                    </button>
+                    <div id="scratchpadDropdown" class="scratchpad-dropdown hidden">
+                        <div class="scratchpad-dropdown-header">
+                            <input type="text" id="newScratchpadName" placeholder="New scratchpad name..." class="form-input" style="font-size: 0.875rem; padding: 0.25rem 0.5rem; margin-bottom: 0.5rem;">
+                            <button id="createScratchpadBtn" class="btn btn-small btn-primary" style="font-size: 0.875rem; padding: 0.25rem 0.5rem;">Create New</button>
+                        </div>
+                        <div class="scratchpad-dropdown-divider"></div>
+                        <div id="scratchpadList" class="scratchpad-list">
+                            <!-- Scratchpad items will be populated here -->
+                        </div>
+                    </div>
                 </nav>
                 <div class="user-info">
                     <span class="user-name" id="userName">Loading...</span>
@@ -29,11 +42,11 @@
         <div class="container">
             <div id="alerts"></div>
             
-            <h1 class="page-title">Create New Ticket</h1>
-            <p class="page-subtitle">Create a new ticket for tracking tasks and issues</p>
+            <h1 class="page-title">Create New Task</h1>
+            <p class="page-subtitle">Create a new task for tracking work and issues</p>
 
             <div class="card">
-                <form id="createTicketForm">
+                <form id="createTaskForm">
                     <div class="form-group">
                         <label for="title" class="form-label">Title *</label>
                         <input type="text" id="title" name="title" class="form-input" required maxlength="200">
@@ -79,7 +92,7 @@
 
                     <div class="form-group">
                         <div class="flex gap-2">
-                            <button type="submit" class="btn btn-primary">Create Ticket</button>
+                            <button type="submit" class="btn btn-primary">Create Task</button>
                             <button type="button" onclick="window.history.back()" class="btn btn-secondary">Cancel</button>
                         </div>
                     </div>
@@ -88,11 +101,55 @@
         </div>
     </main>
 
+    <!-- Calendar Modal -->
+    <div id="calendarModal" class="modal-overlay hidden">
+        <div class="modal-content calendar-modal" id="calendarModalContent">
+            <div class="modal-header">
+                <h2>Calendar View</h2>
+                <div class="calendar-controls">
+                    <button id="prevMonth" class="btn btn-small btn-secondary">←</button>
+                    <span id="currentMonth" class="calendar-month-year"></span>
+                    <button id="nextMonth" class="btn btn-small btn-secondary">→</button>
+                </div>
+                <button id="closeCalendarBtn" class="btn btn-small btn-secondary">✕ Close</button>
+            </div>
+            <div class="modal-body">
+                <div class="calendar-grid">
+                    <div class="calendar-header">
+                        <div class="calendar-day-header">Sun</div>
+                        <div class="calendar-day-header">Mon</div>
+                        <div class="calendar-day-header">Tue</div>
+                        <div class="calendar-day-header">Wed</div>
+                        <div class="calendar-day-header">Thu</div>
+                        <div class="calendar-day-header">Fri</div>
+                        <div class="calendar-day-header">Sat</div>
+                    </div>
+                    <div class="calendar-days" id="calendarDays">
+                        <!-- Calendar days will be populated here -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="calendar-legend">
+                    <span class="legend-item"><span class="legend-color high"></span> High Priority</span>
+                    <span class="legend-item"><span class="legend-color medium"></span> Medium Priority</span>
+                    <span class="legend-item"><span class="legend-color low"></span> Low Priority</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scratchpad Modal -->
     <div id="scratchpadModal" class="modal-overlay hidden">
         <div class="modal-content resizable-modal" id="scratchpadModalContent">
             <div class="modal-header">
-                <h2>Scratchpad</h2>
+                <div class="scratchpad-header-left">
+                    <h2 id="scratchpadTitle">Scratchpad</h2>
+                    <div class="scratchpad-actions">
+                        <button id="renameScratchpadBtn" class="btn btn-small btn-secondary" title="Rename Scratchpad">📝</button>
+                        <button id="deleteScratchpadBtn" class="btn btn-small btn-danger" title="Delete Scratchpad">🗑️</button>
+                    </div>
+                </div>
                 <div class="flex gap-1">
                     <button id="maximizeScratchpadBtn" class="btn btn-small btn-secondary" title="Maximize/Restore">⛶</button>
                     <button id="closeScratchpadBtn" class="btn btn-small btn-secondary">✕ Close</button>
@@ -154,6 +211,12 @@
             // Set up form submission
             setupFormSubmission();
             
+            // Set up keyboard shortcuts
+            setupKeyboardShortcuts();
+            
+            // Set up calendar
+            setupCalendar();
+            
             // Set up scratchpad
             setupScratchpad();
 
@@ -178,13 +241,13 @@
         }
 
         function setupFormSubmission() {
-            const form = document.getElementById('createTicketForm');
+            const form = document.getElementById('createTaskForm');
             
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 
                 const formData = new FormData(form);
-                const ticketData = {
+                const taskData = {
                     title: formData.get('title').trim(),
                     description: formData.get('description').trim(),
                     priority: formData.get('priority'),
@@ -193,7 +256,7 @@
                     due_date: formData.get('due_date') || null
                 };
 
-                if (!ticketData.title) {
+                if (!taskData.title) {
                     Utils.showAlert('Title is required', 'error');
                     return;
                 }
@@ -203,22 +266,22 @@
                     submitButton.disabled = true;
                     submitButton.textContent = 'Creating...';
 
-                    const newTicket = await API.createTicket(ticketData);
+                    const newTask = await API.createTask(taskData);
                     
-                    Utils.showAlert('Ticket created successfully', 'success');
+                    Utils.showAlert('Task created successfully', 'success');
                     
-                    // Redirect to the new ticket
+                    // Redirect to the new task
                     setTimeout(() => {
-                        window.location.href = `/ticket-detail.html?id=${newTicket.id}`;
+                        window.location.href = `/task-detail.html?id=${newTask.id}`;
                     }, 1000);
                     
                 } catch (error) {
-                    console.error('Error creating ticket:', error);
-                    Utils.showAlert(error.message || 'Failed to create ticket', 'error');
+                    console.error('Error creating task:', error);
+                    Utils.showAlert(error.message || 'Failed to create task', 'error');
                 } finally {
                     const submitButton = form.querySelector('button[type="submit"]');
                     submitButton.disabled = false;
-                    submitButton.textContent = 'Create Ticket';
+                    submitButton.textContent = 'Create Task';
                 }
             });
         }

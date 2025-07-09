@@ -138,16 +138,16 @@ class Database {
     `, [], callback);
   }
 
-  // Ticket methods
-  createTicket(ticketData, callback) {
-    const { title, description, priority, status, due_date, assigned_to, created_by } = ticketData;
+  // Task methods
+  createTask(taskData, callback) {
+    const { title, description, priority, status, due_date, assigned_to, created_by } = taskData;
     this.db.run(`
       INSERT INTO tickets (title, description, priority, status, due_date, assigned_to, created_by)
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `, [title, description, priority, status, due_date, assigned_to, created_by], callback);
   }
 
-  getTickets(filters, callback) {
+  getTasks(filters, callback) {
     let query = `
       SELECT t.*, 
              u1.username as created_by_username,
@@ -185,7 +185,7 @@ class Database {
     this.db.all(query, params, callback);
   }
 
-  getTicketById(id, callback) {
+  getTaskById(id, callback) {
     this.db.get(`
       SELECT t.*, 
              u1.username as created_by_username,
@@ -197,7 +197,7 @@ class Database {
     `, [id], callback);
   }
 
-  updateTicket(id, updates, callback) {
+  updateTask(id, updates, callback) {
     const fields = [];
     const values = [];
 
@@ -219,7 +219,7 @@ class Database {
     this.db.run(query, values, callback);
   }
 
-  deleteTicket(id, callback) {
+  deleteTask(id, callback) {
     this.db.run(`DELETE FROM tickets WHERE id = ?`, [id], callback);
   }
 

@@ -16,7 +16,7 @@ function requireAuthWeb(req, res, next) {
   }
 }
 
-function validateTicket(req, res, next) {
+function validateTask(req, res, next) {
   const { title } = req.body;
   
   if (!title || title.trim().length === 0) {
@@ -84,7 +84,7 @@ function validateRegistration(req, res, next) {
 module.exports = {
   requireAuth,
   requireAuthWeb,
-  validateTicket,
+  validateTask,
   validateNote,
   validateLogin,
   validateRegistration

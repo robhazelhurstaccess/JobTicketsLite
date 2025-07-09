@@ -7,7 +7,7 @@ const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
-const ticketRoutes = require('./routes/tickets');
+const taskRoutes = require('./routes/tasks');
 const noteRoutes = require('./routes/notes');
 const userRoutes = require('./routes/users');
 const { requireAuthWeb } = require('./middleware/auth');
@@ -51,7 +51,7 @@ app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
 // API Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/tickets', ticketRoutes);
+app.use('/api/tasks', taskRoutes);
 app.use('/api', noteRoutes);
 app.use('/api/users', userRoutes);
 
@@ -60,16 +60,29 @@ app.get('/', requireAuthWeb, (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
 });
 
+app.get('/tasks.html', requireAuthWeb, (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'frontend', 'tasks.html'));
+});
+
+app.get('/task-detail.html', requireAuthWeb, (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'frontend', 'task-detail.html'));
+});
+
+app.get('/create-task.html', requireAuthWeb, (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'frontend', 'create-task.html'));
+});
+
+// Legacy routes for backward compatibility
 app.get('/tickets.html', requireAuthWeb, (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'frontend', 'tickets.html'));
+  res.redirect('/tasks.html');
 });
 
 app.get('/ticket-detail.html', requireAuthWeb, (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'frontend', 'ticket-detail.html'));
+  res.redirect('/task-detail.html' + (req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : ''));
 });
 
 app.get('/create-ticket.html', requireAuthWeb, (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'frontend', 'create-ticket.html'));
+  res.redirect('/create-task.html');
 });
 
 // Public routes (no auth required)

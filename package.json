@@ -1,7 +1,7 @@
 {
-  "name": "job-tickets-lite",
+  "name": "access-tasks",
   "version": "1.0.0",
-  "description": "A simple case logging system for managing tickets and notes",
+  "description": "A simple task management system for managing tasks and notes",
   "main": "backend/server.js",
   "scripts": {
     "start": "node backend/server.js",
@@ -12,7 +12,7 @@
     "add-attachments": "node add-attachments-table.js"
   },
   "keywords": [
-    "tickets",
+    "tasks",
     "case-management",
     "helpdesk",
     "todo"
