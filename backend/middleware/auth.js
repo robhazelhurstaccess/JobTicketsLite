@@ -54,10 +54,34 @@ function validateLogin(req, res, next) {
   next();
 }
 
+function validateRegistration(req, res, next) {
+  const { username, email, password } = req.body;
+  
+  if (!username || !email || !password) {
+    return res.status(400).json({ error: 'Username, email, and password are required' });
+  }
+
+  if (username.length < 3 || username.length > 20) {
+    return res.status(400).json({ error: 'Username must be between 3 and 20 characters' });
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ error: 'Please enter a valid email address' });
+  }
+
+  next();
+}
+
 module.exports = {
   requireAuth,
   requireAuthWeb,
   validateTicket,
   validateNote,
-  validateLogin
+  validateLogin,
+  validateRegistration
 };

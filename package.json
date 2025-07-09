@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node backend/server.js",
     "dev": "nodemon backend/server.js",
-    "init-db": "node backend/models/database.js"
+    "init-db": "node backend/models/database.js",
+    "setup": "npm install && node backend/models/database.js",
+    "test": "node test-api.js"
   },
   "keywords": [
     "tickets",

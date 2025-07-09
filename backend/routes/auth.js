@@ -1,9 +1,37 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const database = require('../models/database');
-const { validateLogin } = require('../middleware/auth');
+const { validateLogin, validateRegistration } = require('../middleware/auth');
 
 const router = express.Router();
+
+// Register
+router.post('/register', validateRegistration, (req, res) => {
+  const { username, email, password } = req.body;
+
+  // Check if user already exists
+  database.getUserByUsername(username, (err, existingUser) => {
+    if (err) {
+      return res.status(500).json({ error: 'Database error' });
+    }
+
+    if (existingUser) {
+      return res.status(400).json({ error: 'Username already exists' });
+    }
+
+    // Create new user
+    database.createUser(username, email, password, function(err) {
+      if (err) {
+        if (err.code === 'SQLITE_CONSTRAINT' && err.message.includes('email')) {
+          return res.status(400).json({ error: 'Email already exists' });
+        }
+        return res.status(500).json({ error: 'Database error' });
+      }
+
+      res.status(201).json({ message: 'User created successfully' });
+    });
+  });
+});
 
 // Login
 router.post('/login', validateLogin, (req, res) => {

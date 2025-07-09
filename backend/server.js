@@ -70,6 +70,10 @@ app.get('/login.html', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'frontend', 'login.html'));
 });
 
+app.get('/register.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'frontend', 'register.html'));
+});
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });

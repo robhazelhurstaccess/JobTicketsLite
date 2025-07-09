@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - JobTickets Lite</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <h1 class="login-title">Register for JobTickets Lite</h1>
+            <div id="alerts"></div>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" id="username" name="username" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" id="email" name="email" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" name="password" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword" class="form-label">Confirm Password</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" class="form-input" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Register</button>
+            </form>
+            <p class="text-center mt-2">
+                Already have an account? <a href="/login.html">Login here</a>
+            </p>
+        </div>
+    </div>
+
+    <script src="/js/common.js"></script>
+    <script>
+        ready(() => {
+            const form = document.getElementById('registerForm');
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = new FormData(form);
+                const username = formData.get('username');
+                const email = formData.get('email');
+                const password = formData.get('password');
+                const confirmPassword = formData.get('confirmPassword');
+                
+                // Validate passwords match
+                if (password !== confirmPassword) {
+                    Utils.showAlert('Passwords do not match', 'error');
+                    return;
+                }
+                
+                // Validate password strength
+                if (password.length < 6) {
+                    Utils.showAlert('Password must be at least 6 characters long', 'error');
+                    return;
+                }
+                
+                try {
+                    const response = await API.request('/auth/register', {
+                        method: 'POST',
+                        body: { username, email, password }
+                    });
+                    
+                    Utils.showAlert('Registration successful! Please login.', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/login.html';
+                    }, 2000);
+                    
+                } catch (error) {
+                    Utils.showAlert(error.message, 'error');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
