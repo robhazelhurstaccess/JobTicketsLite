@@ -114,12 +114,24 @@
                 
                 <!-- Add Note Form -->
                 <div class="mb-3">
-                    <form id="addNoteForm">
+                    <form id="addNoteForm" enctype="multipart/form-data">
                         <div class="form-group">
                             <label for="noteContent" class="form-label">Add Note</label>
                             <textarea id="noteContent" name="content" class="form-textarea" rows="3" placeholder="Add a note..." required></textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary">Add Note</button>
+                        
+                        <!-- Screenshot Upload Section -->
+                        <div class="image-upload-section">
+                            <label for="screenshot" class="form-label">📷 Attach Screenshot (Optional)</label>
+                            <div class="drag-drop-zone" onclick="document.getElementById('screenshot').click()">
+                                <input type="file" id="screenshot" name="screenshot" accept="image/*">
+                                <p>Click to select or drag & drop an image</p>
+                                <small>Supported: JPG, PNG, GIF, WebP (Max 5MB)</small>
+                            </div>
+                            <div id="imagePreview" class="image-preview hidden"></div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary" id="submitNoteBtn">Add Note</button>
                     </form>
                 </div>
 
@@ -182,11 +194,18 @@
         </div>
     </div>
 
+    <!-- Image Modal -->
+    <div id="imageModal" class="image-modal hidden">
+        <img id="modalImage" src="" alt="Screenshot">
+        <button class="close-modal" onclick="closeImageModal()">✕ Close</button>
+    </div>
+
     <script src="/js/common.js"></script>
     <script>
         let currentTicket = null;
         let currentUser = null;
         let users = [];
+        let selectedFile = null;
 
         ready(async () => {
             // Check authentication
@@ -212,6 +231,9 @@
 
             // Set up event listeners
             setupEventListeners(ticketId);
+            
+            // Set up file upload functionality
+            setupFileUpload();
             
             // Set up scratchpad functionality
             setupScratchpad();
@@ -336,6 +358,22 @@
                         <span class="note-date">${Utils.formatDateTime(note.created_at)}</span>
                     </div>
                     <div class="note-content">${note.content.replace(/\n/g, '<br>')}</div>
+                    ${note.attachments && note.attachments.length > 0 ? `
+                        <div class="note-attachments">
+                            ${note.attachments.map(attachment => `
+                                <div>
+                                    <img src="/api/attachments/${attachment.filename}" 
+                                         alt="${attachment.original_name}" 
+                                         class="attachment-thumbnail"
+                                         onclick="openImageModal('/api/attachments/${attachment.filename}')">
+                                    <div class="attachment-info">
+                                        <strong>${attachment.original_name}</strong> 
+                                        (${formatFileSize(attachment.file_size)})
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
                     <div class="note-actions">
                         <button onclick="deleteNote(${note.id})" class="btn btn-small btn-danger">Delete</button>
                     </div>
@@ -445,13 +483,33 @@
                     return;
                 }
 
-                const submitButton = form.querySelector('button[type="submit"]');
+                const submitButton = document.getElementById('submitNoteBtn');
                 submitButton.disabled = true;
                 submitButton.textContent = 'Adding...';
 
-                await API.createNote(ticketId, content);
+                // Create FormData for file upload
+                const uploadData = new FormData();
+                uploadData.append('content', content);
+                
+                // Add file if selected
+                if (selectedFile) {
+                    uploadData.append('screenshot', selectedFile);
+                }
+
+                const response = await fetch(`/api/tickets/${ticketId}/notes`, {
+                    method: 'POST',
+                    body: uploadData
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed to add note');
+                }
+
+                const newNote = await response.json();
                 
                 form.reset();
+                clearImagePreview();
                 await loadNotes(ticketId);
                 
                 Utils.showQuickAlert('Note Added');
@@ -460,7 +518,7 @@
                 console.error('Error adding note:', error);
                 Utils.showAlert(error.message || 'Failed to add note', 'error');
             } finally {
-                const submitButton = document.getElementById('addNoteForm').querySelector('button[type="submit"]');
+                const submitButton = document.getElementById('submitNoteBtn');
                 submitButton.disabled = false;
                 submitButton.textContent = 'Add Note';
             }
@@ -500,6 +558,152 @@
                 // Reload the ticket to reset the form
                 await loadTicket(currentTicket.id);
             }
+        }
+
+        // File upload functionality
+        function setupFileUpload() {
+            const fileInput = document.getElementById('screenshot');
+            const dragZone = document.querySelector('.drag-drop-zone');
+            const imagePreview = document.getElementById('imagePreview');
+            
+            // File input change handler
+            fileInput.addEventListener('change', handleFileSelect);
+            
+            // Drag and drop handlers
+            dragZone.addEventListener('dragover', handleDragOver);
+            dragZone.addEventListener('dragleave', handleDragLeave);
+            dragZone.addEventListener('drop', handleDrop);
+            
+            // Prevent default drag behaviors
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dragZone.addEventListener(eventName, preventDefaults);
+            });
+            
+            // Clipboard paste handler
+            document.addEventListener('paste', handlePaste);
+        }
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('dragover');
+        }
+        
+        function handleDragLeave(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('dragover');
+        }
+        
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        }
+        
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        }
+        
+        function handlePaste(e) {
+            const items = e.clipboardData.items;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.startsWith('image/')) {
+                    const file = items[i].getAsFile();
+                    handleFile(file);
+                    break;
+                }
+            }
+        }
+        
+        function handleFile(file) {
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                Utils.showAlert('Please select an image file', 'error');
+                return;
+            }
+            
+            // Validate file size (5MB limit)
+            if (file.size > 5 * 1024 * 1024) {
+                Utils.showAlert('File size must be less than 5MB', 'error');
+                return;
+            }
+            
+            selectedFile = file;
+            showImagePreview(file);
+        }
+        
+        function showImagePreview(file) {
+            const preview = document.getElementById('imagePreview');
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                preview.innerHTML = `
+                    <img src="${e.target.result}" alt="Preview" onclick="openImageModal('${e.target.result}')">
+                    <div class="attachment-info">
+                        <strong>${file.name}</strong> (${formatFileSize(file.size)})
+                    </div>
+                    <span class="remove-image" onclick="clearImagePreview()">✕ Remove</span>
+                `;
+                preview.classList.remove('hidden');
+            };
+            
+            reader.readAsDataURL(file);
+        }
+        
+        function clearImagePreview() {
+            const preview = document.getElementById('imagePreview');
+            const fileInput = document.getElementById('screenshot');
+            
+            preview.innerHTML = '';
+            preview.classList.add('hidden');
+            fileInput.value = '';
+            selectedFile = null;
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        function openImageModal(src) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            
+            modalImg.src = src;
+            modal.classList.remove('hidden');
+            
+            // Close on click outside image
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeImageModal();
+                }
+            });
+            
+            // Close on Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeImageModal();
+                }
+            });
+        }
+        
+        function closeImageModal() {
+            const modal = document.getElementById('imageModal');
+            modal.classList.add('hidden');
         }
     </script>
 </body>

@@ -60,6 +60,23 @@ class Database {
         )
       `);
 
+      // Create attachments table
+      this.db.run(`
+        CREATE TABLE IF NOT EXISTS attachments (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          note_id INTEGER NOT NULL,
+          filename TEXT NOT NULL,
+          original_name TEXT NOT NULL,
+          file_path TEXT NOT NULL,
+          file_size INTEGER,
+          mime_type TEXT,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          created_by INTEGER NOT NULL,
+          FOREIGN KEY (note_id) REFERENCES notes (id) ON DELETE CASCADE,
+          FOREIGN KEY (created_by) REFERENCES users (id)
+        )
+      `);
+
       // Create default admin user if not exists
       this.createDefaultUser();
     });
@@ -233,6 +250,29 @@ class Database {
 
   deleteNote(id, callback) {
     this.db.run(`DELETE FROM notes WHERE id = ?`, [id], callback);
+  }
+
+  // Attachment methods
+  createAttachment(attachmentData, callback) {
+    const { note_id, filename, original_name, file_path, file_size, mime_type, created_by } = attachmentData;
+    this.db.run(`
+      INSERT INTO attachments (note_id, filename, original_name, file_path, file_size, mime_type, created_by)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `, [note_id, filename, original_name, file_path, file_size, mime_type, created_by], callback);
+  }
+
+  getAttachmentsByNoteId(noteId, callback) {
+    this.db.all(`
+      SELECT * FROM attachments WHERE note_id = ? ORDER BY created_at ASC
+    `, [noteId], callback);
+  }
+
+  getAttachmentById(id, callback) {
+    this.db.get(`SELECT * FROM attachments WHERE id = ?`, [id], callback);
+  }
+
+  deleteAttachment(id, callback) {
+    this.db.run(`DELETE FROM attachments WHERE id = ?`, [id], callback);
   }
 
   close() {
