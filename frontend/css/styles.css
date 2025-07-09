@@ -622,8 +622,7 @@ a:hover {
   border: 1px solid #30363d;
   border-radius: 8px;
   width: 90%;
-  max-width: 800px;
-  max-height: 80vh;
+  height: 80vh;
   display: flex;
   flex-direction: column;
 }
@@ -632,6 +631,8 @@ a:hover {
   position: relative;
   min-width: 400px;
   min-height: 300px;
+  max-width: 98vw;
+  max-height: 95vh;
   resize: both;
   overflow: hidden;
 }

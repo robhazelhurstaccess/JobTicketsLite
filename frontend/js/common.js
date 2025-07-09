@@ -238,12 +238,15 @@ function setupScratchpad() {
   
   const scratchpadModalContent = document.getElementById('scratchpadModalContent');
   const closeScratchpadBtn = document.getElementById('closeScratchpadBtn');
+  const maximizeScratchpadBtn = document.getElementById('maximizeScratchpadBtn');
   const scratchpadContent = document.getElementById('scratchpadContent');
   const saveScratchpadBtn = document.getElementById('saveScratchpadBtn');
   const clearScratchpadBtn = document.getElementById('clearScratchpadBtn');
   const scratchpadStatus = document.getElementById('scratchpadStatus');
   
   let autoSaveTimeout;
+  let isMaximized = false;
+  let previousSize = { width: null, height: null };
   
   // Load saved content and size
   loadScratchpadContent();
@@ -265,6 +268,11 @@ function setupScratchpad() {
   closeScratchpadBtn.addEventListener('click', () => {
     saveScratchpadSize();
     scratchpadModal.classList.add('hidden');
+  });
+  
+  // Maximize/restore scratchpad
+  maximizeScratchpadBtn.addEventListener('click', () => {
+    toggleMaximize();
   });
   
   // Close on overlay click
@@ -430,10 +438,18 @@ function setupScratchpad() {
       const newWidth = e.clientX - rect.left;
       const newHeight = e.clientY - rect.top;
       
-      if (newWidth >= 400) {
+      // Get viewport dimensions
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      
+      // Allow resize up to 98% of viewport width and 95% of viewport height
+      const maxWidth = viewportWidth * 0.98;
+      const maxHeight = viewportHeight * 0.95;
+      
+      if (newWidth >= 400 && newWidth <= maxWidth) {
         scratchpadModalContent.style.width = newWidth + 'px';
       }
-      if (newHeight >= 300) {
+      if (newHeight >= 300 && newHeight <= maxHeight) {
         scratchpadModalContent.style.height = newHeight + 'px';
       }
     }
@@ -444,6 +460,35 @@ function setupScratchpad() {
       document.removeEventListener('mouseup', stopResize);
       saveScratchpadSize();
     }
+  }
+  
+  function toggleMaximize() {
+    if (isMaximized) {
+      // Restore to previous size
+      if (previousSize.width && previousSize.height) {
+        scratchpadModalContent.style.width = previousSize.width;
+        scratchpadModalContent.style.height = previousSize.height;
+      } else {
+        scratchpadModalContent.style.width = '90%';
+        scratchpadModalContent.style.height = '80vh';
+      }
+      maximizeScratchpadBtn.textContent = '⛶';
+      maximizeScratchpadBtn.title = 'Maximize';
+      isMaximized = false;
+    } else {
+      // Store current size
+      previousSize.width = scratchpadModalContent.style.width || '90%';
+      previousSize.height = scratchpadModalContent.style.height || '80vh';
+      
+      // Maximize to full viewport
+      scratchpadModalContent.style.width = '98vw';
+      scratchpadModalContent.style.height = '95vh';
+      maximizeScratchpadBtn.textContent = '⭳';
+      maximizeScratchpadBtn.title = 'Restore';
+      isMaximized = true;
+    }
+    
+    saveScratchpadSize();
   }
 }
 
@@ -481,16 +526,29 @@ function saveScratchpadContent() {
 
 function loadScratchpadSize() {
   const scratchpadModalContent = document.getElementById('scratchpadModalContent');
+  const maximizeScratchpadBtn = document.getElementById('maximizeScratchpadBtn');
   if (!scratchpadModalContent) return;
   
   const savedWidth = sessionStorage.getItem('scratchpad_width');
   const savedHeight = sessionStorage.getItem('scratchpad_height');
+  const savedMaximized = sessionStorage.getItem('scratchpad_maximized') === 'true';
   
   if (savedWidth) {
     scratchpadModalContent.style.width = savedWidth;
   }
   if (savedHeight) {
     scratchpadModalContent.style.height = savedHeight;
+  }
+  
+  // Update maximize button state if it exists
+  if (maximizeScratchpadBtn) {
+    if (savedMaximized) {
+      maximizeScratchpadBtn.textContent = '⭳';
+      maximizeScratchpadBtn.title = 'Restore';
+    } else {
+      maximizeScratchpadBtn.textContent = '⛶';
+      maximizeScratchpadBtn.title = 'Maximize';
+    }
   }
 }
 
@@ -504,6 +562,10 @@ function saveScratchpadSize() {
   
   sessionStorage.setItem('scratchpad_width', width);
   sessionStorage.setItem('scratchpad_height', height);
+  
+  // Save maximized state
+  const isMaximized = width === '98vw' || parseFloat(width) > window.innerWidth * 0.95;
+  sessionStorage.setItem('scratchpad_maximized', isMaximized.toString());
 }
 
 // Export for use in other files
