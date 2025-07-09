@@ -66,16 +66,30 @@ class Database {
   }
 
   createDefaultUser() {
-    const hashedPassword = bcrypt.hashSync('admin123', 10);
+    const adminPassword = bcrypt.hashSync('admin123', 10);
+    const robPassword = bcrypt.hashSync('password123', 10);
     
+    // Create admin user
     this.db.run(`
       INSERT OR IGNORE INTO users (username, email, password_hash) 
       VALUES (?, ?, ?)
-    `, ['admin', 'admin@example.com', hashedPassword], (err) => {
+    `, ['admin', 'admin@example.com', adminPassword], (err) => {
       if (err) {
-        console.error('Error creating default user:', err);
+        console.error('Error creating admin user:', err);
       } else {
         console.log('Default admin user created (admin/admin123)');
+      }
+    });
+    
+    // Create Rob user
+    this.db.run(`
+      INSERT OR IGNORE INTO users (username, email, password_hash) 
+      VALUES (?, ?, ?)
+    `, ['Rob', 'rob@example.com', robPassword], (err) => {
+      if (err) {
+        console.error('Error creating Rob user:', err);
+      } else {
+        console.log('Default Rob user created (Rob/password123)');
       }
     });
   }

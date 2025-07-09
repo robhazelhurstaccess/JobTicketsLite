@@ -15,6 +15,7 @@
                     <a href="/">Dashboard</a>
                     <a href="/tickets.html">All Tickets</a>
                     <a href="/create-ticket.html">Create Ticket</a>
+                    <button id="scratchpadBtn" class="btn btn-secondary btn-small" style="margin-left: 1rem;">📝 Scratchpad</button>
                 </nav>
                 <div class="user-info">
                     <span class="user-name" id="userName">Loading...</span>
@@ -87,6 +88,54 @@
         </div>
     </main>
 
+    <!-- Scratchpad Modal -->
+    <div id="scratchpadModal" class="modal-overlay hidden">
+        <div class="modal-content resizable-modal" id="scratchpadModalContent">
+            <div class="modal-header">
+                <h2>Scratchpad</h2>
+                <button id="closeScratchpadBtn" class="btn btn-small btn-secondary">✕ Close</button>
+            </div>
+            <div class="modal-body">
+                <!-- Formatting toolbar -->
+                <div class="formatting-toolbar">
+                    <button type="button" class="format-btn" data-format="bold" title="Bold (Ctrl+B)">
+                        <strong>B</strong>
+                    </button>
+                    <button type="button" class="format-btn" data-format="italic" title="Italic (Ctrl+I)">
+                        <em>I</em>
+                    </button>
+                    <button type="button" class="format-btn" data-format="bullet" title="Bullet Point">
+                        • List
+                    </button>
+                    <button type="button" class="format-btn" data-format="number" title="Numbered List">
+                        1. List
+                    </button>
+                    <div class="toolbar-divider"></div>
+                    <button type="button" class="format-btn" data-format="h1" title="Heading 1">
+                        H1
+                    </button>
+                    <button type="button" class="format-btn" data-format="h2" title="Heading 2">
+                        H2
+                    </button>
+                </div>
+                
+                <textarea id="scratchpadContent" class="form-textarea" rows="15" placeholder="Your personal notes..." style="width: 100%; resize: vertical; min-height: 300px; font-family: 'Courier New', monospace;"></textarea>
+            </div>
+            <div class="modal-footer">
+                <div class="flex justify-between items-center">
+                    <span id="scratchpadStatus" class="text-sm" style="color: #8b949e;">Auto-saved</span>
+                    <div class="flex gap-2">
+                        <button id="clearScratchpadBtn" class="btn btn-small btn-danger">Clear All</button>
+                        <button id="saveScratchpadBtn" class="btn btn-small btn-primary">Save</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Resize handle -->
+            <div class="resize-handle"></div>
+        </div>
+    </div>
+
     <script src="/js/common.js"></script>
     <script>
         ready(async () => {
@@ -101,6 +150,9 @@
 
             // Set up form submission
             setupFormSubmission();
+            
+            // Set up scratchpad
+            setupScratchpad();
 
             // Focus on title field
             document.getElementById('title').focus();

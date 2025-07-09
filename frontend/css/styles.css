@@ -603,6 +603,127 @@ a:hover {
   color: #58a6ff;
 }
 
+/* Scratchpad Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.resizable-modal {
+  position: relative;
+  min-width: 400px;
+  min-height: 300px;
+  resize: both;
+  overflow: hidden;
+}
+
+.resize-handle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(-45deg, transparent 0%, transparent 40%, #30363d 40%, #30363d 60%, transparent 60%);
+  cursor: nw-resize;
+  z-index: 10;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #30363d;
+}
+
+.modal-header h2 {
+  color: #e6edf3;
+  margin: 0;
+}
+
+.modal-body {
+  padding: 1rem;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.modal-footer {
+  padding: 1rem;
+  border-top: 1px solid #30363d;
+}
+
+/* Formatting Toolbar */
+.formatting-toolbar {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  align-items: center;
+}
+
+.format-btn {
+  background: #21262d;
+  border: 1px solid #30363d;
+  color: #e6edf3;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  min-width: 32px;
+  justify-content: center;
+}
+
+.format-btn:hover {
+  background: #30363d;
+  border-color: #484f58;
+}
+
+.format-btn:active {
+  background: #1f6feb;
+  border-color: #1f6feb;
+}
+
+.format-btn strong,
+.format-btn em {
+  font-size: 0.875rem;
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 20px;
+  background: #30363d;
+  margin: 0 0.5rem;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}
+
 /* Enhanced note styling */
 .note:hover {
   border-left-color: #58a6ff;
